@@ -1,7 +1,6 @@
 package com.rinattzak.loginfoservice.mapper;
 
 import com.rinattzak.cardservice.dto.CardInfoDto;
-import com.rinattzak.loginfoservice.dto.CardInfoDtoConsumer;
 import com.rinattzak.loginfoservice.entity.CardInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
