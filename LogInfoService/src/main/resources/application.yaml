@@ -1,0 +1,27 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/info}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:0000}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:http://localhost:9092}
+    consumer:
+      group-id: info-service
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master-log-info.yml
+  mvc: ##required for compatibility with SWAGGER
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    throw-exception-if-no-handler-found: true #Enable custom handler for default exceptions
+    web: #Enable custom handler for default exceptions
+      resources.add-mappings: false

@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db.changelog/1.0/12-07-2023-create-tables.yml
+  - include:
+      file: db.changelog/1.0/13-07-2023-add-hash-for-current-passwords-in-db.yml

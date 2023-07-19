@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: createTable-01
+      author: Zakirov
+      changes:
+        - createTable:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number_card
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CCV
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name_of_owner
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: card_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: decimal(19, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PIN
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opening_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_blocked
+                  type: boolean
+                  constraints:
+                    nullable: false
