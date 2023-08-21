@@ -1,7 +1,7 @@
 package com.rinattzak.loginfoservice.service;
 
-import com.rinattzak.cardservice.dto.CardInfoDto;
+import com.rinattzak.loginfoservice.entity.CardInfo;
 
 public interface CardInfoService {
-    void save(CardInfoDto cardInfoDto);
+    void save(CardInfo cardInfo);
 }

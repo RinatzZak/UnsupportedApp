@@ -1,17 +1,22 @@
 package com.rinattzak.loginfoservice.config;
 
-import com.rinattzak.loginfoservice.dto.CardInfoDtoConsumer;
+import com.rinattzak.loginfoservice.entity.CardInfo;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.converter.JsonMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +34,8 @@ public class KafkaConsumerConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(JsonDeserializer.TYPE_MAPPINGS, "cardInfoDto:com.rinattzak.loginfoservice.entity.CardInfo");
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaGroupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
@@ -37,12 +43,7 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public StringJsonMessageConverter converter() {
-        return new StringJsonMessageConverter();
-    }
-
-    @Bean
-    public ConsumerFactory<Long, CardInfoDtoConsumer> consumerFactory() {
+    public ConsumerFactory<Long, CardInfo> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
@@ -53,10 +54,11 @@ public class KafkaConsumerConfig {
 
     @Bean
     public KafkaListenerContainerFactory<?> singleFactory() {
-        ConcurrentKafkaListenerContainerFactory<Long, CardInfoDtoConsumer> factory =
+        ConcurrentKafkaListenerContainerFactory<Long, CardInfo> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setBatchListener(false);
+        factory.setRecordMessageConverter(new JsonMessageConverter());
         return factory;
     }
 }

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -30,4 +31,17 @@ public class CardInfoDto {
     private LocalDate openingDate;
     @NotNull
     private Boolean isBlocked;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardInfoDto that = (CardInfoDto) o;
+        return Objects.equals(message, that.message) && Objects.equals(numberCard, that.numberCard) && Objects.equals(nameOfOwner, that.nameOfOwner) && cardType == that.cardType && Objects.equals(openingDate, that.openingDate) && Objects.equals(isBlocked, that.isBlocked);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(message, numberCard, nameOfOwner, cardType, openingDate, isBlocked);
+    }
 }
