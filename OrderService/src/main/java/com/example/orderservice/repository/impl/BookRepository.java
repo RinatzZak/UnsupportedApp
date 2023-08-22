@@ -7,7 +7,6 @@ import com.example.orderservice.repository.CrudRepository;
 import com.example.orderservice.util.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.stereotype.Repository;

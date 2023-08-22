@@ -1,7 +1,5 @@
 package com.rinattzak.cardservice.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rinattzak.cardservice.dto.CardInfoDto;
 import com.rinattzak.cardservice.dto.CardRequestDto;
 import com.rinattzak.cardservice.dto.CardResponseDto;
@@ -12,11 +10,14 @@ import com.rinattzak.cardservice.service.CardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -28,6 +29,7 @@ public class CardServiceImpl implements CardService {
     private final KafkaTemplate<String, CardInfoDto> kafkaTemplate;
 
     @Override
+    @Transactional
     public CardResponseDto save(CardRequestDto cardRequestDto) {
         log.info("Start save card for user with id {}:", cardRequestDto.getUserId());
         Card card = mapper.toEntity(cardRequestDto);
@@ -38,14 +40,25 @@ public class CardServiceImpl implements CardService {
         card.setIsBlocked(false);
         repository.save(card);
         log.info("Saved card for user with id {}:", cardRequestDto.getUserId());
-        CardInfoDto cardInfoDto = new CardInfoDto();
+        log.info("Start send card info to Kafka topic, card number - {}", card.getNumberCard());
+        CardInfoDto cardInfoDto = mapper.toInfoDto(card);
         cardInfoDto.setMessage("Карта для пользователя - " + cardRequestDto.getUserId());
-        cardInfoDto.setNumberCard(card.getNumberCard());
-        cardInfoDto.setCardType(card.getCardType());
-        cardInfoDto.setOpeningDate(card.getOpeningDate());
-        cardInfoDto.setNameOfOwner(card.getNameOfOwner());
-        cardInfoDto.setIsBlocked(card.getIsBlocked());
-        kafkaTemplate.send("info-topic", cardInfoDto);
+        kafkaTemplate.setTransactionIdPrefix("cardInfoMessage");
+        CompletableFuture<SendResult<String, CardInfoDto>> future =
+            kafkaTemplate.executeInTransaction(operations ->
+                operations.send("info-topic", cardInfoDto));
+        assert future != null;
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.info("Message successful send!");
+                log.info(String.valueOf(kafkaTemplate.inTransaction()));
+                log.info(kafkaTemplate.getTransactionIdPrefix());
+            } else {
+                log.info("Failed to send message to topic - {}", ex.getMessage());
+            }
+        });
+
+
         return mapper.toDto(card);
     }
 
